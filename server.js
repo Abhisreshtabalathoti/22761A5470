@@ -1,20 +1,35 @@
 require("dotenv").config();
 const express = require("express");
-const app = express();
 const cors = require("cors");
-const connection = require("./db");
+// const morgan = require("morgan");
+// const helmet = require("helmet");
+
+const connectDB = require("./db");
 const authRoutes = require("./routes/auth");
 
-// database connection
-connection();
+const app = express();
 
-// middlewares
+// Connect to database
+connectDB();
+
+
 app.use(express.json());
 app.use(cors());
 
-// routes
+// app.use(morgan("dev")); // Logs requests
+
 
 app.use("/api/auth", authRoutes);
 
-const port = process.env.PORT || 8080;
-app.listen(port, console.log(`Listening on port ${port}...`));
+
+app.get("/", (req, res) => {
+    res.send("API is running...");
+});
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: "Something went wrong!" });
+});
+
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}...`));
